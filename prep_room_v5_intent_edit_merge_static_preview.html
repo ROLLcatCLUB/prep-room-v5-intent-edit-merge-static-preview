@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>师维 · 备课室 | 小备调度台 v5 意图协商合并预览</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F6F5F2;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", "Roboto", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+            color: #2C3E2F;
+            line-height: 1.45;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(175, 210, 180, 0.08) 0%, rgba(235, 240, 230, 0) 48%),
+                linear-gradient(120deg, rgba(244, 238, 220, 0.35), rgba(236, 244, 245, 0.25));
+            z-index: -2;
+        }
+
+        .app-container {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 0 28px 42px;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 20px 0 24px;
+            gap: 16px;
+            border-bottom: 1px solid rgba(140, 160, 130, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            color: #5B6E55;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 650;
+            background: linear-gradient(135deg, #5B6E55 0%, #315B49 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .logo-sub {
+            font-size: 0.8rem;
+            color: #8C9E85;
+            margin-left: 4px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .nav-emoji {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: #FEFEFB;
+            border-radius: 30px;
+            font-size: 1.25rem;
+            border: 1px solid #E0E6DA;
+            color: #5B6E55;
+            cursor: default;
+            position: relative;
+            text-decoration: none;
+            transition: 0.14s ease;
+        }
+
+        .nav-emoji:hover {
+            background: #F0F5EA;
+            transform: translateY(-2px);
+        }
+
+        .nav-emoji::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3A5A41;
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 5;
+        }
+
+        .nav-emoji:hover::after {
+            opacity: 1;
+        }
+
+        .nav-emoji.active {
+            background: #E4EEDA;
+            border-color: #AFC7A2;
+            color: #3C6B55;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 40px;
+            padding: 6px 16px;
+            display: flex;
+            gap: 8px;
+            border: 1px solid #E2E6DE;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 160px;
+            font-size: 0.85rem;
+        }
+
+        .notification,
+        .user-avatar {
+            font-size: 1.25rem;
+            color: #5B6E55;
+            cursor: default;
+            position: relative;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: -4px;
+            right: -8px;
+            background: #D87358;
+            color: white;
+            font-size: 0.65rem;
+            border-radius: 20px;
+            padding: 0 5px;
+        }
+
+        .user-avatar {
+            background: #D9E0D4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prep-workspace {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid #EAF0E2;
+            overflow: hidden;
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        .top-bar {
+            padding: 20px 28px 14px;
+            border-bottom: 1px solid #EDF2E6;
+            background: #FCFEF9;
+        }
+
+        .greeting-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .greeting-line h3 {
+            font-weight: 550;
+            font-size: 1.2rem;
+            color: #2C4A35;
+        }
+
+        .semester-context {
+            background: #EDF3E8;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .semester-info-btn {
+            background: none;
+            border: none;
+            color: #578F70;
+            cursor: default;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-quiet,
+        .mini-btn {
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 520;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: default;
+            transition: 0.12s ease;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background: #578F70;
+            color: white;
+            border: none;
+            padding: 7px 18px;
+        }
+
+        .btn-secondary {
+            background: #F0F5EA;
+            border: 1px solid #D0E2C4;
+            color: #3C6B55;
+            padding: 7px 18px;
+        }
+
+        .btn-quiet {
+            background: transparent;
+            border: 1px solid #E1E9D8;
+            color: #647A60;
+            padding: 7px 14px;
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover,
+        .btn-quiet:hover,
+        .mini-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px -10px rgba(44, 74, 53, 0.5);
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 310px minmax(520px, 1fr) 320px;
+            min-height: 720px;
+        }
+
+        .agent-sidebar {
+            background: #FDFEF9;
+            border-right: 1px solid #EDF2E6;
+            padding: 22px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .agent-avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2px;
+        }
+
+        .agent-avatar i {
+            font-size: 1.6rem;
+            color: #578F70;
+            background: #E4EEDA;
+            padding: 10px;
+            border-radius: 28px;
+        }
+
+        .agent-role {
+            font-size: 0.66rem;
+            color: #7B8E74;
+        }
+
+        .agent-card,
+        .editor-card,
+        .tool-info-card,
+        .flow-card,
+        .pending-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #EAF0E2;
+        }
+
+        .card-title,
+        .suggestion-text {
+            font-size: 0.84rem;
+            color: #2C4A35;
+            margin-bottom: 10px;
+            font-weight: 650;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .intent-input {
+            width: 100%;
+            min-height: 92px;
+            border: 1px solid #DDE8D5;
+            border-radius: 16px;
+            padding: 11px 12px;
+            outline: none;
+            resize: vertical;
+            color: #2C3E2F;
+            background: #FEFEFB;
+            font: inherit;
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        .intent-input:focus {
+            border-color: #AFC7A2;
+            box-shadow: 0 0 0 3px rgba(87, 143, 112, 0.1);
+        }
+
+        .intent-actions,
+        .agent-buttons,
+        .editor-actions,
+        .detail-buttons,
+        .pending-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .intent-chip {
+            background: #F5F7F1;
+            color: #4C694E;
+            border: 1px solid #DEE8D5;
+            border-radius: 30px;
+            padding: 5px 10px;
+            font-size: 0.68rem;
+            cursor: default;
+        }
+
+        .intent-chip:hover,
+        .selectable:hover {
+            background: #EEF5E8;
+            border-color: #C9DDC0;
+        }
+
+        .negotiation {
+            display: none;
+            border-left: 4px solid #578F70;
+            background: #F9FCF5;
+        }
+
+        .negotiation.open {
+            display: block;
+        }
+
+        .small-label {
+            font-size: 0.67rem;
+            font-weight: 650;
+            color: #6D8C68;
+            margin: 10px 0 5px;
+        }
+
+        .soft-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.73rem;
+            color: #4C6149;
+        }
+
+        .soft-list li {
+            padding-left: 14px;
+            position: relative;
+        }
+
+        .soft-list li::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #8BAE84;
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        .agent-note {
+            font-size: 0.75rem;
+            color: #4C6149;
+        }
+
+        .canvas {
+            padding: 22px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .view-switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid #EDF2E6;
+            padding-bottom: 12px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 2;
+        }
+
+        .view-btn {
+            background: none;
+            border: none;
+            padding: 7px 16px;
+            font-size: 0.8rem;
+            border-radius: 40px;
+            cursor: default;
+            color: #5B6E55;
+        }
+
+        .view-btn.active {
+            background: #E4EEDA;
+            color: #3C6B55;
+            font-weight: 650;
+        }
+
+        .week-view,
+        .month-view,
+        .flexible-view {
+            display: none;
+        }
+
+        .week-view.active-view,
+        .month-view.active-view,
+        .flexible-view.active-view {
+            display: block;
+        }
+
+        .week-grid,
+        .pressure-grid,
+        .flexible-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .week-day,
+        .pressure-week,
+        .anchor-block,
+        .adjustable-block,
+        .buffer-pool,
+        .disturbance,
+        .suggestion-card {
+            background: #FDFEFB;
+            border-radius: 20px;
+            border: 1px solid #EDF2E6;
+            padding: 16px 18px;
+            cursor: default;
+            transition: 0.12s ease;
+        }
+
+        .selectable {
+            outline: 0 solid transparent;
+        }
+
+        .selectable.selected-node {
+            border-color: #77A987;
+            box-shadow: 0 0 0 3px rgba(87, 143, 112, 0.11);
+            background: #FBFEF7;
+        }
+
+        .day-header,
+        .pressure-header {
+            font-weight: 650;
+            margin-bottom: 12px;
+            color: #578F70;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .package-card {
+            margin-top: 8px;
+            padding: 10px 0 0;
+            border-top: 1px solid #F0F4EA;
+        }
+
+        .package-title {
+            font-weight: 650;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .package-progress,
+        .field-line,
+        .week-detail {
+            font-size: 0.74rem;
+            color: #578F70;
+            margin: 5px 0;
+        }
+
+        .gap-list {
+            font-size: 0.72rem;
+            color: #8A6E4C;
+            margin: 7px 0;
+            line-height: 1.55;
+        }
+
+        .next-action {
+            margin-top: 9px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .mini-btn {
+            background: #F3F7EF;
+            color: #426448;
+            border: 1px solid #E0EAD8;
+            padding: 4px 11px;
+            font-size: 0.66rem;
+        }
+
+        .pressure-level {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        .pressure-low {
+            background: #E0F0E0;
+            color: #2C6A2C;
+        }
+
+        .pressure-mid {
+            background: #F0EAD6;
+            color: #8A682C;
+        }
+
+        .pressure-high {
+            background: #FADDD8;
+            color: #B04D32;
+        }
+
+        .pressure-adjust {
+            background: #E6EDEC;
+            color: #3C6B6B;
+        }
+
+        .status-bar {
+            background: #F9FCF5;
+            border-radius: 18px;
+            padding: 14px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid #EAF0E2;
+            font-size: 0.78rem;
+        }
+
+        .section-title {
+            font-weight: 650;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2C4A35;
+        }
+
+        .anchor-item,
+        .unit-item,
+        .buffer-item,
+        .disturb-item {
+            padding: 9px 0;
+            border-bottom: 1px solid #F0F4EA;
+            font-size: 0.78rem;
+            color: #3D523F;
+        }
+
+        .anchor-item:last-child,
+        .unit-item:last-child,
+        .buffer-item:last-child,
+        .disturb-item:last-child {
+            border-bottom: none;
+        }
+
+        .badge-lock,
+        .risk-tag,
+        .state-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 30px;
+            font-size: 0.62rem;
+            padding: 2px 8px;
+            margin-left: 4px;
+        }
+
+        .badge-lock {
+            background: #EDF3E8;
+            color: #4E7455;
+        }
+
+        .risk-tag {
+            background: #FFEFE0;
+            color: #B15D2D;
+        }
+
+        .state-tag {
+            background: #E6EDEC;
+            color: #3C6B6B;
+        }
+
+        .right-sidebar {
+            background: #FCFEF9;
+            border-left: 1px solid #EDF2E6;
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        .tool-icon {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: #FEFEFB;
+            border-radius: 16px;
+            border: 1px solid #E7EDE1;
+            cursor: default;
+            transition: 0.1s;
+            color: #5B6E55;
+            position: relative;
+        }
+
+        .tool-icon:hover,
+        .tool-icon.active-tool {
+            background: #F0F5EA;
+            border-color: #C8DEBC;
+            color: #578F70;
+        }
+
+        .tool-icon::after {
+            content: attr(data-name);
+            position: absolute;
+            right: 0;
+            top: calc(100% + 5px);
+            background: #3A5A41;
+            color: white;
+            font-size: 0.66rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 8;
+        }
+
+        .tool-icon:hover::after {
+            opacity: 1;
+        }
+
+        .tool-info-card {
+            display: none;
+            background: #F9FCF5;
+        }
+
+        .tool-info-card.open {
+            display: block;
+        }
+
+        .editor-card {
+            min-height: 260px;
+            background: #FFFFFF;
+        }
+
+        .editor-empty {
+            color: #7A8F74;
+            font-size: 0.76rem;
+            line-height: 1.6;
+            padding: 10px 0;
+        }
+
+        .editor-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            font-size: 0.74rem;
+            color: #405642;
+        }
+
+        .editor-fields strong {
+            color: #2C4A35;
+        }
+
+        .flow-footer {
+            padding: 16px 20px 18px;
+            border-top: 1px solid #EDF2E6;
+            background: #FCFEF9;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 290px;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .flow-title {
+            font-size: 0.82rem;
+            font-weight: 650;
+            color: #2C4A35;
+            margin-bottom: 10px;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(110px, 1fr));
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .flow-node {
+            background: white;
+            border: 1px solid #EAF0E2;
+            border-radius: 16px;
+            padding: 10px;
+            min-height: 90px;
+            position: relative;
+        }
+
+        .flow-node:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            right: -8px;
+            top: 32px;
+            color: #91A989;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .flow-node-title {
+            font-size: 0.75rem;
+            font-weight: 650;
+            color: #315B49;
+            margin-bottom: 6px;
+        }
+
+        .flow-node-desc {
+            font-size: 0.66rem;
+            color: #6C7F66;
+            line-height: 1.45;
+        }
+
+        .pending-card {
+            background: #FFFDF8;
+            border-color: #E8DFC8;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pending-status {
+            font-size: 0.74rem;
+            color: #806B41;
+            line-height: 1.55;
+        }
+
+        .pending-badge {
+            background: #F4EAD2;
+            color: #7D6127;
+            border: 1px solid #E7D8B3;
+            border-radius: 30px;
+            padding: 4px 10px;
+            display: inline-flex;
+            font-size: 0.68rem;
+            margin-top: 8px;
+            cursor: default;
+        }
+
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.22);
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 20px;
+        }
+
+        .modal-mask.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            width: 500px;
+            max-width: 100%;
+            border: 1px solid #EAF0E2;
+            box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .modal-head h3 {
+            font-size: 1.05rem;
+            color: #2C4A35;
+        }
+
+        .close-btn {
+            cursor: default;
+            color: #75876F;
+            border: 1px solid #E3EAD9;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 1240px) {
+            .three-col {
+                grid-template-columns: 300px minmax(460px, 1fr);
+            }
+
+            .right-sidebar {
+                grid-column: 1 / -1;
+                border-left: none;
+                border-top: 1px solid #EDF2E6;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(7, 48px);
+                justify-content: start;
+            }
+
+            .flow-footer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 880px) {
+            .app-container {
+                padding: 0 18px 32px;
+            }
+
+            .three-col {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .agent-sidebar,
+            .right-sidebar {
+                border: none;
+                border-top: 1px solid #EDF2E6;
+            }
+
+            .flow-steps {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .flow-node:not(:last-child)::after {
+                display: none;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="navbar">
+        <div class="logo-area">
+            <i class="fas fa-brain logo-icon"></i>
+            <span class="logo-text">师维</span>
+            <span class="logo-sub">| 教师AI工作台</span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-emoji" data-tooltip="大厅">🏠</a>
+            <a href="#" class="nav-emoji" data-tooltip="教室">🏫</a>
+            <a href="#" class="nav-emoji active" data-tooltip="备课室">📖</a>
+            <a href="#" class="nav-emoji" data-tooltip="课堂观察">👀</a>
+            <a href="#" class="nav-emoji" data-tooltip="作品馆">🖼️</a>
+            <a href="#" class="nav-emoji" data-tooltip="知识馆">📚</a>
+            <a href="#" class="nav-emoji" data-tooltip="档案室">🗄️</a>
+        </div>
+        <div class="nav-right">
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="搜索课包、单元、教材"></div>
+            <div class="notification"><i class="far fa-bell"></i><span class="badge">2</span></div>
+            <div class="user-avatar"><i class="fas fa-user-graduate"></i></div>
+        </div>
+    </div>
+
+    <div class="prep-workspace">
+        <div class="top-bar">
+            <div class="greeting-line">
+                <h3>📖 小备在备课室等你 · 本周课包准备</h3>
+                <div>
+                    <span class="semester-context"><i class="fas fa-calendar-alt"></i> 2026春学期 · 苏少版美术 · 三至六年级 · 20班 · 20周</span>
+                    <button class="semester-info-btn" id="openSemesterInfoBtn"><i class="fas fa-info-circle"></i> 学期信息</button>
+                </div>
+            </div>
+            <div class="quick-actions">
+                <div class="btn-primary" id="quickContinueBtn"><i class="fas fa-chalkboard"></i> 按小备建议继续</div>
+                <div class="btn-secondary" id="quickNewLessonBtn"><i class="fas fa-plus"></i> 新建课包</div>
+                <div class="btn-secondary" id="quickCallXiaomeiBtn"><i class="fas fa-paintbrush-pencil"></i> 交给小美</div>
+            </div>
+        </div>
+
+        <div class="three-col">
+            <aside class="agent-sidebar">
+                <div class="agent-avatar">
+                    <i class="fas fa-user-check"></i>
+                    <div><strong>小备</strong><br><span class="agent-role">备课室负责人 · 工作协商入口</span></div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="card-title"><i class="fas fa-pen-to-square"></i> 告诉小备你的调整意图</div>
+                    <textarea id="intentInput" class="intent-input" placeholder="例如：下周公开课提前了，帮我把色彩单元重新排一下"></textarea>
+                    <div class="intent-actions">
+                        <span class="intent-chip" data-intent="学校临时加任务">学校临时加任务</span>
+                        <span class="intent-chip" data-intent="公开课提前">公开课提前</span>
+                        <span class="intent-chip" data-intent="学生进度慢了">学生进度慢了</span>
+                        <span class="intent-chip" data-intent="调课导致少一节">调课导致少一节</span>
+                        <span class="intent-chip" data-intent="创艺节作品要提前">创艺节作品要提前</span>
+                        <span class="intent-chip" data-intent="某个课包来不及准备">某个课包来不及准备</span>
+                    </div>
+                    <div class="agent-buttons">
+                        <div class="btn-primary" id="submitIntentBtn">让小备理解影响</div>
+                        <div class="btn-quiet" id="clearIntentBtn">清空</div>
+                    </div>
+                </div>
+
+                <div id="negotiationCard" class="agent-card negotiation">
+                    <div class="card-title"><i class="fas fa-comments"></i> 小备协商结果</div>
+                    <div class="small-label">小备理解</div>
+                    <div class="agent-note">你需要为第10周公开课腾出1课时，同时不影响《青绿中国色》的核心产出。</div>
+                    <div class="small-label">影响范围</div>
+                    <ul class="soft-list">
+                        <li>色彩单元可能延展到第6周</li>
+                        <li>造型表现单元可能压缩1课时</li>
+                        <li>《青绿中国色》建议保留完整创作环节</li>
+                        <li>《色彩的对比与和谐》复盘环节可压缩</li>
+                    </ul>
+                    <div class="small-label">建议方案</div>
+                    <ul class="soft-list">
+                        <li>方案A：色彩单元延展1周，造型表现压缩1课时</li>
+                        <li>方案B：启用作品补完课包，保持原进度</li>
+                        <li>方案C：将素材准备提前交给小美，减少课堂占用</li>
+                    </ul>
+                    <div class="agent-buttons">
+                        <div class="btn-primary" data-pending="小备已生成1个重排方案，等待教师确认。">采用方案A</div>
+                        <div class="btn-secondary" id="showImpactBtn">查看影响</div>
+                        <div class="btn-secondary" id="continueTalkBtn">继续和小备商量</div>
+                        <div class="btn-quiet" id="cancelNegotiationBtn">取消</div>
+                    </div>
+                </div>
+
+                <div id="agentSuggestionBox" class="agent-card">
+                    <div class="suggestion-text"><i class="fas fa-lightbulb"></i> 当前建议</div>
+                    <div id="agentDynamicText" class="agent-note">本周先把第3-5周色彩单元的两个课包补齐。<br>《青绿中国色》缺学习单和评价维度；<br>《色彩的对比与和谐》缺问题链和互评表。</div>
+                    <div class="agent-buttons">
+                        <div class="btn-secondary" id="agentFollowBtn">按小备建议继续</div>
+                        <div class="btn-secondary" id="agentLaterBtn">稍后处理</div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="canvas">
+                <div class="view-switch">
+                    <button class="view-btn active" data-view="week">周课包</button>
+                    <button class="view-btn" data-view="month">月进度</button>
+                    <button class="view-btn" data-view="flexible">弹性学期地图</button>
+                </div>
+
+                <section id="weekView" class="week-view active-view">
+                    <div class="week-grid">
+                        <div class="week-day selectable" data-node="package-qinglv">
+                            <div class="day-header"><span>周一 · 课包完善</span><span class="state-tag">待完善</span></div>
+                            <div class="package-card">
+                                <div class="package-title"><span>《青绿中国色》</span><span class="mini-btn">色彩单元</span></div>
+                                <div class="package-progress">状态：课包待完善 · 完成度 70%</div>
+                                <div class="gap-list">缺口：学习单未生成、材料清单待确认、评价维度待小评补充</div>
+                                <div class="field-line">协同对象：小美生成学习单背景 · 小评补评价维度 · 小管预设归档字段 · 知识馆补充《千里江山图》资料</div>
+                                <div class="next-action">
+                                    <span class="mini-btn" data-pending="小备已生成1个课包补齐预演，等待教师确认。">完善备课包</span>
+                                    <span class="mini-btn" data-pending="学习单生成预演已加入待确认变更。">生成学习单</span>
+                                    <span class="mini-btn" data-pending="小评数据引用方案已生成，等待教师确认。">调用小评数据</span>
+                                    <span class="mini-btn">送入教室预览</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="week-day selectable" data-node="unit-color">
+                            <div class="day-header"><span>周二 · 单元确认</span><span class="state-tag">待确认</span></div>
+                            <div class="package-card">
+                                <div class="package-title"><span>色彩单元</span><span class="mini-btn">共4课时</span></div>
+                                <div class="package-progress">状态：单元计划待确认 · 完成度 40%</div>
+                                <div class="gap-list">缺口：单元目标细化、课时拆分、评价量规</div>
+                                <div class="field-line">协同对象：小备拆课 · 小评预设评价量规 · 知识馆补充传统色彩资料</div>
+                                <div class="next-action"><span class="mini-btn">确认单元计划</span><span class="mini-btn">拆分课时</span></div>
+                            </div>
+                        </div>
+
+                        <div class="week-day selectable" data-node="package-football-culture">
+                            <div class="day-header"><span>周三 · 素材准备</span><span class="state-tag">素材待补</span></div>
+                            <div class="package-card">
+                                <div class="package-title"><span>足球文化馆作品</span><span class="mini-btn">项目任务</span></div>
+                                <div class="package-progress">状态：素材待补充 · 完成度 30%</div>
+                                <div class="gap-list">缺口：参考图、任务卡、展示模板</div>
+                                <div class="field-line">协同对象：小美生成展示模板 · 知识馆调用足球文化材料 · 小管预留作品展字段</div>
+                                <div class="next-action"><span class="mini-btn">交给小美</span><span class="mini-btn">调用知识馆</span></div>
+                            </div>
+                        </div>
+
+                        <div class="week-day selectable" data-node="package-future-football">
+                            <div class="day-header"><span>周四 · 项目课包</span><span class="state-tag">项目草案</span></div>
+                            <div class="package-card">
+                                <div class="package-title"><span>《未来足球装备》</span><span class="mini-btn">项目式学习</span></div>
+                                <div class="package-progress">状态：项目草案 · 完成度 50%</div>
+                                <div class="gap-list">缺口：项目流程、阶段任务、评价规则</div>
+                                <div class="field-line">协同对象：小美提前素材准备 · 小评补项目评价规则 · 小研提炼项目案例方向</div>
+                                <div class="next-action"><span class="mini-btn">拆分课时</span><span class="mini-btn">交给小美</span></div>
+                            </div>
+                        </div>
+
+                        <div class="week-day selectable" data-node="package-friday-check">
+                            <div class="day-header"><span>周五 · 课包检查</span><span class="state-tag">汇总</span></div>
+                            <div class="package-card">
+                                <div class="package-title">课包准备汇总</div>
+                                <div class="gap-list">✅ 待送入教室：2个<br>🎨 待小美补素材：1个<br>⭐ 待小评补评价维度：1个<br>🗄️ 待小管建立归档字段：1个</div>
+                                <div class="field-line">协同对象：小教接收课堂入口 · 小美补素材 · 小评补评价维度 · 小管建立归档字段</div>
+                                <div class="next-action"><span class="mini-btn">批量送入教室</span><span class="mini-btn">检查缺口</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="monthView" class="month-view">
+                    <div class="pressure-grid">
+                        <div class="pressure-week selectable" data-node="month-week-1">
+                            <div class="pressure-header"><span><strong>第1周</strong></span><span class="pressure-level pressure-low">压力：低</span></div>
+                            <div class="week-detail">主要原因：基础课包整理 · 小备建议：完成教材目录核对和基础课包归档 · 机动空间：可机动2课时</div>
+                        </div>
+                        <div class="pressure-week selectable" data-node="month-week-2">
+                            <div class="pressure-header"><span><strong>第2周</strong></span><span class="pressure-level pressure-mid">压力：中</span></div>
+                            <div class="week-detail">主要原因：色彩单元启动 · 小备建议：提前确认单元目标和课时拆分 · 机动空间：可机动1课时</div>
+                        </div>
+                        <div class="pressure-week selectable" data-node="month-week-3">
+                            <div class="pressure-header"><span><strong>第3周</strong></span><span class="pressure-level pressure-high">压力：高</span></div>
+                            <div class="week-detail">主要原因：青绿中国色 + 公开课准备 · 小备建议：提前生成学习单并交给小美优化 · 机动空间：0课时</div>
+                            <div class="next-action"><span class="mini-btn" data-pending="第3周压力调整建议已生成，等待教师确认。">查看详情</span></div>
+                        </div>
+                        <div class="pressure-week selectable" data-node="month-week-4">
+                            <div class="pressure-header"><span><strong>第4周</strong></span><span class="pressure-level pressure-adjust">压力：中 · 可机动1课时</span></div>
+                            <div class="week-detail">主要原因：作品补完与展评可以缓冲 · 小备建议：保留1课时作为作品补完课或展评课 · 机动空间：1课时</div>
+                        </div>
+                        <div class="pressure-week selectable" data-node="month-week-5">
+                            <div class="pressure-header"><span><strong>第5周</strong></span><span class="pressure-level pressure-high">压力：高</span></div>
+                            <div class="week-detail">主要原因：评价维度和归档字段需要提前准备 · 小备建议：调用小评和小管预设评价与归档结构 · 机动空间：0课时</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="flexibleView" class="flexible-view">
+                    <div class="flexible-container">
+                        <div class="status-bar">
+                            <span>📌 当前第10周</span>
+                            <span>整体进度：正常偏紧</span>
+                            <span>⏱️ 可用机动课时：3课时</span>
+                            <span>⚠️ 待处理扰动：2项</span>
+                        </div>
+
+                        <div class="anchor-block">
+                            <div class="section-title"><i class="fas fa-anchor"></i> 固定锚点</div>
+                            <div class="anchor-item">🔒 第10周：公开课 <span class="badge-lock">不可移动</span></div>
+                            <div class="anchor-item">🔒 第15周：校园画展 <span class="badge-lock">不可移动</span></div>
+                            <div class="anchor-item">🔒 第16周：创艺节 <span class="badge-lock">不可移动</span></div>
+                            <div class="anchor-item">🔒 第19周：期末评价 <span class="badge-lock">不可移动</span></div>
+                            <div class="anchor-item">🔒 第20周：质量分析 <span class="badge-lock">不可移动</span></div>
+                        </div>
+
+                        <div class="adjustable-block">
+                            <div class="section-title"><i class="fas fa-sliders-h"></i> 可调整教学块</div>
+                            <div class="unit-item selectable" data-node="teaching-block-color"><strong>色彩单元</strong> · 建议周次：第3-5周 · 当前安排：第3-6周 · 标准课时：4课时 · 最短课时：3课时 · 可延展：1课时 · <span class="risk-tag">当前风险：公开课准备占用1课时</span><br>小备建议：保留《青绿中国色》，压缩色彩复盘环节</div>
+                            <div class="unit-item selectable" data-node="teaching-block-shape"><strong>造型表现单元</strong> · 建议周次：第6-8周 · 当前安排：第7-8周 · 标准课时：4课时 · 最短课时：3课时 · 可延展：1课时 · <span class="risk-tag">当前风险：被压缩1周，风险中</span><br>小备建议：减少练习课，保留核心作品产出</div>
+                            <div class="unit-item selectable" data-node="teaching-block-project"><strong>综合创作单元</strong> · 建议周次：第11-14周 · 当前安排：第11-14周 · 标准课时：6课时 · 最短课时：5课时 · 可延展：1课时 · <span class="state-tag">当前风险：正常</span><br>小备建议：保持节奏，提前为校园画展预留作品筛选时间</div>
+                        </div>
+
+                        <div class="buffer-pool selectable" data-node="buffer-pool">
+                            <div class="section-title"><i class="fas fa-boxes"></i> 机动池</div>
+                            <div class="buffer-item">作品补完课包</div>
+                            <div class="buffer-item">展评与互评课</div>
+                            <div class="buffer-item">轻量学习单课</div>
+                            <div class="buffer-item">足球文化馆作品深化课</div>
+                            <div class="buffer-item">校园画展素材整理课</div>
+                            <div class="buffer-item">色彩小游戏课包</div>
+                            <div class="gap-list">可用机动课包：6个 · 可释放课时：3课时 · 可后移任务：4项</div>
+                        </div>
+
+                        <div class="disturbance">
+                            <div class="section-title"><i class="fas fa-wave-square"></i> 扰动事件</div>
+                            <div class="disturb-item selectable" data-node="disturbance-open-class">📢 公开课准备增加 · 影响周次：第10周 · 占用课时：1课时 · 影响单元：色彩单元 · 状态：待处理</div>
+                            <div class="disturb-item selectable" data-node="disturbance-festival">🎨 创艺节作品征集提前 · 影响周次：第14-16周 · 占用课时：2课时 · 影响单元：综合创作单元 · 状态：需重排</div>
+                        </div>
+
+                        <div class="suggestion-card">
+                            <div class="section-title"><i class="fas fa-robot"></i> 小备重排建议</div>
+                            <div class="agent-note">检测到公开课占用1课时，创艺节提前需作品。</div>
+                            <ul class="soft-list">
+                                <li>方案A：色彩单元延展1周，造型表现单元压缩1课时</li>
+                                <li>方案B：启用作品补完课包，保持色彩单元节奏</li>
+                                <li>方案C：将《未来足球装备》素材准备提前交给小美</li>
+                            </ul>
+                            <div class="next-action">
+                                <span class="mini-btn" id="planAbtn" data-pending="小备已生成1个重排方案，等待教师确认。">采用方案A</span>
+                                <span class="mini-btn" id="planBbtn">查看影响</span>
+                                <span class="mini-btn" id="planCbtn">手动调整</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="right-sidebar">
+                <div class="agent-card">
+                    <div class="card-title"><i class="fas fa-toolbox"></i> 小备工具栏</div>
+                    <div class="tool-grid">
+                        <div class="tool-icon" data-tool="textbook" data-name="教材解析">📘</div>
+                        <div class="tool-icon" data-tool="unit" data-name="单元重组">🧩</div>
+                        <div class="tool-icon" data-tool="split" data-name="拆课">✂️</div>
+                        <div class="tool-icon" data-tool="weekly" data-name="课包周历">📅</div>
+                        <div class="tool-icon" data-tool="reschedule" data-name="重排工具">⚠️</div>
+                        <div class="tool-icon" data-tool="objective" data-name="教学目标">🎯</div>
+                        <div class="tool-icon" data-tool="flow" data-name="课堂流程">📋</div>
+                        <div class="tool-icon" data-tool="worksheet" data-name="学习单">📄</div>
+                        <div class="tool-icon" data-tool="material" data-name="材料清单">📦</div>
+                        <div class="tool-icon" data-tool="search" data-name="知识库检索">🔍</div>
+                        <div class="tool-icon" data-tool="xiaomei" data-name="交给小美">🎨</div>
+                        <div class="tool-icon" data-tool="xiaoping" data-name="小评数据">⭐</div>
+                        <div class="tool-icon" data-tool="xiaoguan" data-name="小管归档字段">🗄️</div>
+                        <div class="tool-icon" data-tool="xiaoyan" data-name="小研教研方向">📖</div>
+                    </div>
+                </div>
+
+                <div id="toolInfoPanel" class="tool-info-card">
+                    <div class="card-title"><span id="toolTitle">工具</span></div>
+                    <div id="toolDesc" class="agent-note">工具说明</div>
+                    <div id="toolButtons" class="detail-buttons"></div>
+                </div>
+
+                <div class="editor-card">
+                    <div class="card-title"><i class="fas fa-square-pen"></i> 当前选中节点编辑</div>
+                    <div id="editorEmpty" class="editor-empty">点击画布中的课包、周段或教学块，可查看并预览调整。小备只生成建议和预演，正式应用必须由教师确认。</div>
+                    <div id="editorContent" style="display:none;">
+                        <div id="editorTitle" class="card-title"></div>
+                        <div id="editorFields" class="editor-fields"></div>
+                        <div id="editorActions" class="editor-actions"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="flow-footer">
+            <div class="flow-card">
+                <div class="flow-title">课包流转与数据回流</div>
+                <div class="flow-steps">
+                    <div class="flow-node"><div class="flow-node-title">📖 备课室</div><div class="flow-node-desc">课包生成 / 学习单 / 材料 / 评价维度</div></div>
+                    <div class="flow-node"><div class="flow-node-title">🏫 教室</div><div class="flow-node-desc">课堂执行 / 学生提交 / 课堂观察</div></div>
+                    <div class="flow-node"><div class="flow-node-title">🖼️ 作品馆</div><div class="flow-node-desc">作品收录 / AI初评 / 教师确认</div></div>
+                    <div class="flow-node"><div class="flow-node-title">🗄️ 档案室</div><div class="flow-node-desc">评价表 / 学生档案 / 课堂证据</div></div>
+                    <div class="flow-node"><div class="flow-node-title">📘 教研室</div><div class="flow-node-desc">教学反思 / 案例 / 论文素材</div></div>
+                    <div class="flow-node"><div class="flow-node-title">📖 回流备课室</div><div class="flow-node-desc">学生共性问题 / 资料复用 / 下一轮课包优化</div></div>
+                </div>
+            </div>
+
+            <div class="pending-card">
+                <div>
+                    <div class="flow-title">待确认变更</div>
+                    <div id="pendingStatus" class="pending-status">当前无待确认变更。</div>
+                    <div id="pendingBadge" class="pending-badge" style="display:none;">查看待确认变更</div>
+                </div>
+                <div class="pending-actions">
+                    <div class="btn-quiet" id="showPackageFlow">当前课包：《青绿中国色》 · 缺口联动</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<div id="semesterModal" class="modal-mask">
+    <div class="modal-card">
+        <div class="modal-head"><h3>📋 学期信息</h3><span class="close-btn" data-close="semesterModal">×</span></div>
+        <div class="editor-fields">
+            <div><strong>任教年级：</strong>三至六年级</div>
+            <div><strong>教材：</strong>苏少版小学美术</div>
+            <div><strong>班级：</strong>各年级5个班，共20班</div>
+            <div><strong>每周课时：</strong>三至六年级每周2课时</div>
+            <div><strong>教材目录：</strong>已导入全册目录</div>
+            <div><strong>班级名单：</strong>已同步教务系统</div>
+        </div>
+        <div class="pending-actions"><div class="btn-secondary" data-close="semesterModal">关闭</div></div>
+    </div>
+</div>
+
+<div id="pendingModal" class="modal-mask">
+    <div class="modal-card">
+        <div class="modal-head"><h3>待确认变更预览</h3><span class="close-btn" data-close="pendingModal">×</span></div>
+        <div class="small-label">变更内容</div>
+        <div id="pendingChangeText" class="agent-note">小备已生成1个重排方案，等待教师确认。</div>
+        <div class="small-label">影响范围</div>
+        <ul class="soft-list">
+            <li>色彩单元延展到第6周，仅用于当前预览</li>
+            <li>造型表现单元预览压缩1课时</li>
+            <li>《青绿中国色》保留完整创作环节</li>
+            <li>不会写入正式数据、飞书、数据库或后端状态</li>
+        </ul>
+        <div class="pending-actions">
+            <div class="btn-primary" id="confirmPendingBtn">确认应用</div>
+            <div class="btn-quiet" id="discardPendingBtn">放弃</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const weekDiv = document.getElementById("weekView");
+        const monthDiv = document.getElementById("monthView");
+        const flexibleDiv = document.getElementById("flexibleView");
+        const viewBtns = document.querySelectorAll(".view-btn");
+        const agentTextDiv = document.getElementById("agentDynamicText");
+        const negotiationCard = document.getElementById("negotiationCard");
+        const intentInput = document.getElementById("intentInput");
+        const pendingStatus = document.getElementById("pendingStatus");
+        const pendingBadge = document.getElementById("pendingBadge");
+        const pendingChangeText = document.getElementById("pendingChangeText");
+        let pendingText = "";
+
+        function showMsg(msg) {
+            alert(msg);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add("open");
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("open");
+        }
+
+        function setView(view) {
+            weekDiv.classList.remove("active-view");
+            monthDiv.classList.remove("active-view");
+            flexibleDiv.classList.remove("active-view");
+            if (view === "week") weekDiv.classList.add("active-view");
+            if (view === "month") monthDiv.classList.add("active-view");
+            if (view === "flexible") flexibleDiv.classList.add("active-view");
+            viewBtns.forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-view") === view));
+            if (view === "week") {
+                agentTextDiv.innerHTML = "本周先把第3-5周色彩单元的两个课包补齐。<br>《青绿中国色》缺学习单和评价维度；<br>《色彩的对比与和谐》缺问题链和互评表。<br>建议先完善课包，再送入教室。";
+            } else if (view === "month") {
+                agentTextDiv.innerHTML = "本月课包压力正常偏紧。第3周和第5周压力较高，建议提前调用小美和小评，减少临近上课前的准备压力。";
+            } else {
+                agentTextDiv.innerHTML = "学期计划已受到2项扰动影响。建议启用1个机动课包，并将造型表现单元压缩1课时，避免后续创艺节作品产出受到影响。";
+            }
+        }
+
+        function showNegotiation(source) {
+            if (source) intentInput.value = source;
+            negotiationCard.classList.add("open");
+            agentTextDiv.innerHTML = "小备已把你的意图转成可预演方案。现在只显示影响和建议，正式应用仍需要教师确认。";
+        }
+
+        function addPendingChange(text) {
+            pendingText = text || "小备已生成1个重排方案，等待教师确认。";
+            pendingStatus.innerText = pendingText;
+            pendingBadge.style.display = "inline-flex";
+            pendingChangeText.innerText = pendingText;
+        }
+
+        const nodeDetails = {
+            "package-qinglv": {
+                title: "编辑课包：《青绿中国色》",
+                fields: [
+                    ["所属单元", "色彩单元"],
+                    ["当前状态", "课包待完善"],
+                    ["完成度", "70%"],
+                    ["缺口", "学习单未生成、材料清单待确认、评价维度待小评补充"],
+                    ["下一步", "生成学习单、调用小评数据、交给小美、送入教室预览"]
+                ],
+                actions: ["更新课包状态", "补齐缺口", "交给小美", "调用小评", "送入教室预览"]
+            },
+            "month-week-3": {
+                title: "编辑月进度：第3周",
+                fields: [
+                    ["课包压力", "高"],
+                    ["主要原因", "青绿中国色 + 公开课准备"],
+                    ["可机动课时", "0"],
+                    ["建议协同", "小美、小评"],
+                    ["小备建议", "提前生成学习单并交给小美优化"]
+                ],
+                actions: ["调整压力等级", "添加临时任务", "启用机动课时", "生成本周调整建议"]
+            },
+            "teaching-block-color": {
+                title: "编辑教学块：色彩单元",
+                fields: [
+                    ["建议周次", "第3-5周"],
+                    ["当前安排", "第3-6周"],
+                    ["标准课时", "4课时"],
+                    ["最短课时", "3课时"],
+                    ["可延展", "1课时"],
+                    ["是否可压缩", "是"],
+                    ["当前风险", "公开课准备占用1课时"],
+                    ["小备建议", "保留《青绿中国色》，压缩色彩复盘环节"]
+                ],
+                actions: ["压缩1课时", "延展1周", "移入机动池", "查看影响", "生成重排方案"]
+            },
+            "disturbance-open-class": {
+                title: "处理扰动：公开课准备增加",
+                fields: [
+                    ["影响周次", "第10周"],
+                    ["占用课时", "1课时"],
+                    ["影响单元", "色彩单元"],
+                    ["状态", "待处理"]
+                ],
+                actions: ["生成重排方案", "启用机动池", "标记已处理"]
+            },
+            "unit-color": {
+                title: "编辑单元：色彩单元",
+                fields: [["状态", "单元计划待确认"], ["完成度", "40%"], ["缺口", "单元目标细化、课时拆分、评价量规"], ["建议协同", "小备、小评、知识馆"]],
+                actions: ["确认单元计划", "拆分课时", "生成评价量规"]
+            },
+            "package-football-culture": {
+                title: "编辑课包：足球文化馆作品",
+                fields: [["当前状态", "素材待补充"], ["完成度", "30%"], ["缺口", "参考图、任务卡、展示模板"], ["建议协同", "小美、知识馆、小管"]],
+                actions: ["交给小美", "调用知识馆", "建立展览字段"]
+            },
+            "package-future-football": {
+                title: "编辑课包：《未来足球装备》",
+                fields: [["当前状态", "项目草案"], ["完成度", "50%"], ["缺口", "项目流程、阶段任务、评价规则"], ["建议协同", "小美、小评、小研"]],
+                actions: ["拆分课时", "交给小美", "补评价规则"]
+            },
+            "package-friday-check": {
+                title: "编辑汇总：周五课包检查",
+                fields: [["待送入教室", "2个"], ["待小美补素材", "1个"], ["待小评补评价维度", "1个"], ["待小管建立归档字段", "1个"]],
+                actions: ["批量送入教室", "检查缺口", "生成周汇总建议"]
+            },
+            "disturbance-festival": {
+                title: "处理扰动：创艺节作品征集提前",
+                fields: [["影响周次", "第14-16周"], ["占用课时", "2课时"], ["影响单元", "综合创作单元"], ["状态", "需重排"]],
+                actions: ["生成重排方案", "启用作品深化课", "查看影响"]
+            }
+        };
+
+        function renderEditor(nodeKey) {
+            const detail = nodeDetails[nodeKey] || {
+                title: "查看节点详情",
+                fields: [["说明", "该节点已被选中，可查看并预览调整。"]],
+                actions: ["生成调整建议", "查看影响"]
+            };
+            document.getElementById("editorEmpty").style.display = "none";
+            document.getElementById("editorContent").style.display = "block";
+            document.getElementById("editorTitle").innerText = detail.title;
+            document.getElementById("editorFields").innerHTML = detail.fields.map(([k, v]) => `<div><strong>${k}：</strong>${v}</div>`).join("");
+            const actionHtml = detail.actions.map(action => `<div class="btn-secondary editor-action-btn" data-action="${action}">${action}</div>`).join("");
+            document.getElementById("editorActions").innerHTML = actionHtml;
+            document.querySelectorAll(".editor-action-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const action = btn.getAttribute("data-action");
+                    if (action.includes("查看") || action.includes("预览")) {
+                        showMsg(`${action}：只展示模拟说明，不写入正式数据。`);
+                    } else {
+                        addPendingChange(`小备已生成「${action}」预演，等待教师确认。`);
+                    }
+                });
+            });
+        }
+
+        const toolMap = {
+            textbook: { title: "教材解析", desc: "解析教材，建立学期结构，辅助单元重组。", btns: ["解析目录", "关联单元"] },
+            unit: { title: "单元重组", desc: "将教材内容重组成教学单元块，规划课包产出。", btns: ["重组色彩单元", "重组造型单元"] },
+            split: { title: "拆课", desc: "将单元拆分为课时草案和课包框架。", btns: ["拆分色彩单元", "拆分项目单元"] },
+            weekly: { title: "课包周历", desc: "生成周课包计划，调整优先级。", btns: ["生成周课包", "调整优先级"] },
+            reschedule: { title: "重排工具", desc: "检查学校临时任务对学期计划的影响，生成重排方案。", btns: ["检查扰动", "生成重排方案", "查看影响范围"] },
+            objective: { title: "教学目标", desc: "基于单元生成核心教学目标。", btns: ["生成色彩单元目标", "编辑目标"] },
+            flow: { title: "课堂流程", desc: "生成课时流程结构，纳入备课包。", btns: ["生成流程", "调整环节"] },
+            worksheet: { title: "学习单", desc: "基于课包生成学习单初稿，可交给小美。", btns: ["生成学习单", "交给小美优化"] },
+            material: { title: "材料清单", desc: "整理课堂所需材料清单。", btns: ["生成清单", "补充耗材"] },
+            search: { title: "知识库检索", desc: "查找资料、案例，完善课包。", btns: ["检索《千里江山图》", "查找青绿山水"] },
+            xiaomei: { title: "交给小美", desc: "将课包素材交小美做视觉设计。", btns: ["生成学习单背景", "生成PPT封面"] },
+            xiaoping: { title: "小评数据", desc: "查看学生共性问题，辅助分层和评价维度。", btns: ["查看三年级色彩问题", "引用共性问题"] },
+            xiaoguan: { title: "小管归档字段", desc: "预设本课归档字段、评价表结构。", btns: ["建立归档字段", "导入评价模板"] },
+            xiaoyan: { title: "小研教研方向", desc: "预设教研沉淀角度。", btns: ["关联传统文化课题", "生成教研案例框架"] }
+        };
+
+        viewBtns.forEach(btn => btn.addEventListener("click", () => setView(btn.getAttribute("data-view"))));
+        document.getElementById("submitIntentBtn").addEventListener("click", () => showNegotiation(intentInput.value.trim() || "公开课提前"));
+        document.getElementById("clearIntentBtn").addEventListener("click", () => { intentInput.value = ""; negotiationCard.classList.remove("open"); });
+        document.querySelectorAll(".intent-chip").forEach(chip => chip.addEventListener("click", () => showNegotiation(chip.getAttribute("data-intent"))));
+        document.getElementById("showImpactBtn").addEventListener("click", () => showMsg("影响预览：色彩单元延展到第6周，造型表现单元压缩1课时，仅用于预览。"));
+        document.getElementById("continueTalkBtn").addEventListener("click", () => showMsg("继续协商：你可以在意图框补充限制，小备会重新预演影响。"));
+        document.getElementById("cancelNegotiationBtn").addEventListener("click", () => negotiationCard.classList.remove("open"));
+
+        document.querySelectorAll(".selectable").forEach(node => {
+            node.addEventListener("click", (event) => {
+                if (event.target.classList.contains("mini-btn")) return;
+                document.querySelectorAll(".selectable").forEach(el => el.classList.remove("selected-node"));
+                node.classList.add("selected-node");
+                renderEditor(node.getAttribute("data-node"));
+            });
+        });
+
+        document.querySelectorAll(".tool-icon").forEach(tool => {
+            tool.addEventListener("click", () => {
+                document.querySelectorAll(".tool-icon").forEach(t => t.classList.remove("active-tool"));
+                tool.classList.add("active-tool");
+                const info = toolMap[tool.getAttribute("data-tool")];
+                const panel = document.getElementById("toolInfoPanel");
+                document.getElementById("toolTitle").innerText = info.title;
+                document.getElementById("toolDesc").innerText = info.desc;
+                document.getElementById("toolButtons").innerHTML = info.btns.map(btn => `<div class="btn-secondary tool-action-btn">${btn}</div>`).join("");
+                document.querySelectorAll(".tool-action-btn").forEach(btn => btn.addEventListener("click", () => addPendingChange(`小备已生成「${info.title} - ${btn.innerText}」预演，等待教师确认。`)));
+                panel.classList.add("open");
+            });
+        });
+
+        document.querySelectorAll("[data-pending]").forEach(el => {
+            el.addEventListener("click", (event) => {
+                event.stopPropagation();
+                addPendingChange(el.getAttribute("data-pending"));
+            });
+        });
+
+        document.getElementById("pendingBadge").addEventListener("click", () => {
+            if (pendingText) openModal("pendingModal");
+        });
+        document.getElementById("confirmPendingBtn").addEventListener("click", () => {
+            closeModal("pendingModal");
+            pendingStatus.innerText = "方案已应用到预览，不写入正式数据。";
+            pendingBadge.style.display = "none";
+            pendingText = "";
+            showMsg("方案已应用到预览，不写入正式数据。");
+        });
+        document.getElementById("discardPendingBtn").addEventListener("click", () => {
+            closeModal("pendingModal");
+            pendingStatus.innerText = "当前无待确认变更。";
+            pendingBadge.style.display = "none";
+            pendingText = "";
+        });
+
+        document.getElementById("openSemesterInfoBtn").addEventListener("click", () => openModal("semesterModal"));
+        document.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => closeModal(btn.getAttribute("data-close"))));
+        document.querySelectorAll(".modal-mask").forEach(mask => mask.addEventListener("click", event => {
+            if (event.target === mask) mask.classList.remove("open");
+        }));
+
+        document.getElementById("quickContinueBtn").addEventListener("click", () => showMsg("小备继续引导：优先补齐课包缺口。"));
+        document.getElementById("quickNewLessonBtn").addEventListener("click", () => showMsg("新建课包：请选择单元，小备生成课包草案预览。"));
+        document.getElementById("quickCallXiaomeiBtn").addEventListener("click", () => addPendingChange("小美素材协同预演已生成，等待教师确认。"));
+        document.getElementById("agentFollowBtn").addEventListener("click", () => showMsg("按小备建议：第一步完善学习单，第二步调用小评数据。"));
+        document.getElementById("agentLaterBtn").addEventListener("click", () => showMsg("已记录在预览待办，不写入正式数据。"));
+        document.getElementById("planBbtn").addEventListener("click", () => showMsg("查看影响：创艺节作品需提前，启用作品补完课包可缓冲。"));
+        document.getElementById("planCbtn").addEventListener("click", () => showMsg("手动调整预览：可模拟拖动教学块或修改课时。"));
+        document.getElementById("showPackageFlow").addEventListener("click", () => showMsg("当前课包：《青绿中国色》缺口：学习单、材料清单、评价维度。已关联小美、小评、小管。"));
+        document.querySelectorAll(".nav-emoji").forEach(el => {
+            el.addEventListener("click", (event) => {
+                event.preventDefault();
+                showMsg(`师维带你进入「${el.getAttribute("data-tooltip")}」空间。`);
+            });
+        });
+
+        console.log("PREP_ROOM_V5_INTENT_EDIT_MERGE_STATIC_PREVIEW | preview-only, no API/provider/memory/Feishu/formal write");
+    })();
+</script>
+</body>
+</html>
